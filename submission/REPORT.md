@@ -1,4 +1,4 @@
-# Báo cáo Day 08 — <<MSHV - Họ và tên>>
+# Báo cáo Day 08 — 2A202603066 - Lê Đức Tường
 
 > Một file duy nhất cho cả bài (đã gộp recipe, QC và ghi chú cá nhân). Mọi con số kèm **mẫu số** và nguồn (file nào). Viết bằng lời của bạn.
 
@@ -6,15 +6,20 @@
 
 | Lớp | Model + cỡ | Ngưỡng | Vì sao (dẫn `run_id` trong `model_log.csv`) |
 |---|---|---|---|
-| person / bicycle / motorbike / car / bus / truck | <<YOLO26m>> | <<theo lớp, từ threshold_sweep>> | <<>> |
-| three_wheeler | <<YOLOE-26s, prompt: ...>> | <<>> | <<>> |
+| person / bicycle / car / bus / truck | YOLO26m | 0.30 (mặc định) | Theo `r01` & `r02`: Mẫu Gold ít (< 5 vật) hoặc không có ngưỡng nào <= 0.5 đạt Recall 90%, giữ 0.30 để tránh False Positives. |
+| motorbike | YOLO26m | 0.10 | Theo `r01` & sweep: Đạt Recall 100% (9/9 vật gold), Precision 53% (chấp nhận bắt thừa để review xóa nhanh hơn gán tay). |
+| three_wheeler | YOLOE-26s, prompt: `three_wheeler` | 0.15 | Theo `r03` & sweep: Đạt Recall 100% (7/7 vật gold) và Precision 78%, bắt đúng các dạng tuk-tuk/xích lô mà YOLO26 bỏ sót. |
 
-- Lệnh `merge_prelabels.py` đã dùng (dán nguyên): <<>>
-- **Phiên bản SAM bạn chọn** (SAM 1 / 2.1 / 3) và lý do: <<chất lượng mask, tốc độ, RAM, quyền truy cập>>
-- Lỗi nào **không sửa được bằng đổi ngưỡng** (ví dụ tuk-tuk bị gọi `car`)? Sửa thế nào? <<>>
-- Box **điểm cao mà sai** hoặc **điểm thấp mà đúng** (ảnh nào): <<>>
-- Giới hạn: chọn ngưỡng trên chính gold (4 ảnh) nên số đo máy trên gold là lạc quan: <<>>
-
+- **Lệnh `merge_prelabels.py` đã dùng (dán nguyên):**
+  `python scripts/merge_prelabels.py work/prelabel/yoloe_all/pre.coco.json work/prelabel/y26_all/pre.coco.json --thr "motorbike=0.1,three_wheeler=0.15" --conf 0.3 --iou 0.6 --split "batch,gold" --out work/prelabel/merged_review/pre.coco.json`
+- **Phiên bản SAM bạn chọn (SAM 1 / 2.1 / 3) và lý do:**
+  Dùng SAM 2.1 (`sam2.1_b.pt`) theo `r04`. Lý do: Cân bằng tốt giữa tốc độ xử lý trên CPU (~4.8s/ảnh) và khả năng bắt viền mask chính xác, ôm sát thân người và xe máy mà không tốn quá nhiều VRAM/RAM.
+- **Lỗi nào không sửa được bằng đổi ngưỡng (ví dụ tuk-tuk bị gọi `car`)? Sửa thế nào?**
+  YOLO26 bị nhầm tuk-tuk/ba gác thành `car` hoặc `truck` bất kể điều chỉnh ngưỡng conf nào. Xử lý bằng cách dùng YOLOE với text prompt `three_wheeler` để quét riêng lớp này rồi gộp nhãn bằng `merge_prelabels.py` (ghi đè nhãn `car` sai).
+- **Box điểm cao mà sai hoặc điểm thấp mà đúng (ảnh nào):**
+  Box điểm cao mà sai: Trong `img_032.jpg`, YOLO26 nhận diện bóng râm/mái che với conf 0.72 thành `car`. Box điểm thấp mà đúng: Trong `img_013.jpg`, motorbike bị che khuất ở xa conf chỉ 0.12 nhưng AI vẫn đoán đúng vị trí.
+- **Giới hạn:**
+  Việc quét chọn ngưỡng dựa trên chính 4 ảnh Gold nên các chỉ số Recall/Precision của máy đo được trên tập Gold mang tính lạc quan (do chọn và đánh giá trên cùng một tập dữ liệu nhỏ).
 ## 2. AI error profile (từ `qc/review_stats.md`)
 
 | Trạng thái | Số | Tỉ lệ | Mẫu số |
