@@ -1,10 +1,10 @@
 # Thông tin học viên
 
-- Họ và tên: <<>>
-- MSHV: <<>>
-- Lớp (L2 / L3 / khác): <<>>
-- Tài khoản GitHub: <<>>
-- Repo bài nộp (URL): <<>>
+- Họ và tên: <<Lê Đức Tường>>
+- MSHV: <<2A202603066>>
+- Lớp (L2 / L3 / khác): <<L2>>
+- Tài khoản GitHub: <<https://github.com/ductuong05it>>
+- Repo bài nộp (URL): <<https://github.com/ductuong05it/K5-L23-Day08-2A202603066-LeDucTuong-AI-Assisted-Labeling>>
 - Commit chốt bài (hash): <<>>
 - Máy: <<hệ điều hành, GPU (CUDA / MPS / không có)>>
 - CVAT (Docker): <<phiên bản, ví dụ v2.81.0>>
